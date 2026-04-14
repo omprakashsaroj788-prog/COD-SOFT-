@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator — CodSoft Task 1</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --accent: #c8f542;
+      --accent-dark: #a8d02a;
+      --op-color: #c8f542;
+      --danger: #ff6b6b;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+
+    /* subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .calc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 1.5rem;
+      width: 320px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    /* label */
+    .label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      padding-left: 2px;
+    }
+
+    /* display */
+    .display {
+      background: var(--surface2);
+      border-radius: 14px;
+      padding: 1.25rem 1.25rem 1rem;
+      margin-bottom: 1.25rem;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .expr {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      min-height: 18px;
+      text-align: right;
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+
+    .result {
+      font-family: 'DM Mono', monospace;
+      font-size: 38px;
+      font-weight: 300;
+      color: var(--text);
+      text-align: right;
+      word-break: break-all;
+      line-height: 1.1;
+      transition: transform 0.08s ease;
+    }
+
+    .result.pop {
+      transform: scale(1.04);
+    }
+
+    /* button grid */
+    .btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 64px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.08s, border-color 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: #2e2e2e;
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    button:active {
+      transform: scale(0.94);
+    }
+
+    /* ripple */
+    button .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      transform: scale(0);
+      animation: ripple 0.4s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    button.op {
+      color: var(--op-color);
+      border-color: rgba(200, 245, 66, 0.15);
+      background: rgba(200, 245, 66, 0.06);
+    }
+    button.op:hover {
+      background: rgba(200, 245, 66, 0.12);
+      border-color: rgba(200, 245, 66, 0.3);
+    }
+
+    button.eq {
+      background: var(--accent);
+      color: #111;
+      border-color: var(--accent);
+      font-weight: 500;
+    }
+    button.eq:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    button.clr {
+      color: var(--danger);
+      border-color: rgba(255,107,107,0.15);
+      background: rgba(255,107,107,0.06);
+    }
+    button.clr:hover {
+      background: rgba(255,107,107,0.12);
+    }
+
+    button.zero {
+      grid-column: span 2;
+      text-align: left;
+      padding-left: 22px;
+    }
+  </style>
+</head>
+<body>
+  <div class="calc">
+    <div class="label">CodSoft · Task 01 · Calculator</div>
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="result" id="result">0</div>
+    </div>
+    <div class="btns">
+      <button class="clr" data-action="clear">C</button>
+      <button class="op" data-action="sign">+/−</button>
+      <button class="op" data-action="percent">%</button>
+      <button class="op" data-op="/">÷</button>
+
+      <button data-num="7">7</button>
+      <button data-num="8">8</button>
+      <button data-num="9">9</button>
+      <button class="op" data-op="*">×</button>
+
+      <button data-num="4">4</button>
+      <button data-num="5">5</button>
+      <button data-num="6">6</button>
+      <button class="op" data-op="-">−</button>
+
+      <button data-num="1">1</button>
+      <button data-num="2">2</button>
+      <button data-num="3">3</button>
+      <button class="op" data-op="+">+</button>
+
+      <button class="zero" data-num="0">0</button>
+      <button data-action="dot">.</button>
+      <button class="eq" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    let cur = '0', prev = '', op = null, fresh = false;
+    const R = document.getElementById('result');
+    const E = document.getElementById('expr');
+
+    function fmt(n) {
+      const s = parseFloat(n);
+      if (isNaN(s)) return 'Error';
+      const str = s.toPrecision(10).replace(/\.?0+$/, '');
+      return str.length > 12 ? s.toExponential(5) : str;
+    }
+
+    function show() {
+      R.textContent = fmt(cur);
+    }
+
+    function pop() {
+      R.classList.remove('pop');
+      void R.offsetWidth;
+      R.classList.add('pop');
+      setTimeout(() => R.classList.remove('pop'), 150);
+    }
+
+    function ripple(btn, e) {
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+      btn.appendChild(r);
+      setTimeout(() => r.remove(), 400);
+    }
+
+    document.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', e => {
+        ripple(b, e);
+        const num = b.dataset.num;
+        const act = b.dataset.action;
+        const oper = b.dataset.op;
+
+        if (num !== undefined) {
+          if (fresh || cur === '0') { cur = num; fresh = false; }
+          else if (cur.replace('.','').replace('-','').length < 12) cur += num;
+          show();
+        }
+
+        if (oper) {
+          if (op && !fresh) {
+            try { prev = String(eval(prev + op + cur)); } catch(e) { prev = cur; }
+            cur = prev;
+          } else {
+            prev = cur;
+          }
+          const sym = oper === '*' ? '×' : oper === '/' ? '÷' : oper;
+          E.textContent = fmt(prev) + ' ' + sym;
+          op = oper; fresh = true; show();
+        }
+
+        if (act === 'equals') {
+          if (!op) return;
+          const sym = op === '*' ? '×' : op === '/' ? '÷' : op;
+          E.textContent = fmt(prev) + ' ' + sym + ' ' + fmt(cur) + ' =';
+          try { cur = String(eval(prev + op + cur)); } catch(e) { cur = 'Error'; }
+          op = null; prev = ''; fresh = true; pop(); show();
+        }
+        if (act === 'clear') {
+          cur = '0'; prev = ''; op = null; fresh = false; E.textContent = ''; show();
+        }
+        if (act === 'sign') { cur = String(-parseFloat(cur)); show(); }
+        if (act === 'percent') { cur = String(parseFloat(cur) / 100); show(); }
+        if (act === 'dot') {
+          if (fresh) { cur = '0.'; fresh = false; }
+          else if (!cur.includes('.')) cur += '.';
+          show();
+        }
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      const map = {
+        '0':'0','1':'1','2':'2','3':'3','4':'4',
+        '5':'5','6':'6','7':'7','8':'8','9':'9',
+        '+':'+','-':'-','*':'*','/':'/','Enter':'=','=':'=',
+        'Backspace':'bs','Escape':'clear','Delete':'clear','.':'.'
+      };
+      const k = map[e.key];
+      if (!k) return;
+      e.preventDefault();
+      if ('0123456789'.includes(k)) document.querySelector(`[data-num="${k}"]`)?.click();
+      else if (['+','-','*','/'].includes(k)) document.querySelector(`[data-op="${k}"]`)?.click();
+      else if (k === '=') document.querySelector('[data-action="equals"]')?.click();
+      else if (k === 'clear') document.querySelector('[data-action="clear"]')?.click();
+      else if (k === '.') document.querySelector('[data-action="dot"]')?.click();
+      else if (k === 'bs') {
+        if (cur.length > 1) cur = cur.slice(0, -1);
+        else cur = '0';
+        show();
+      }
+    });
+  </script>
+</body>
+</html>

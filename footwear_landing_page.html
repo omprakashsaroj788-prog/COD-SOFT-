@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoleCraft — Premium Footwear</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream: #f5f0e8;
+      --ink: #1a1209;
+      --gold: #c8973a;
+      --gold-light: #e8c06a;
+      --rust: #b5451b;
+      --sage: #5a6b55;
+      --warm-gray: #7a6f62;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: multiply;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.4s ease, width 0.3s, height 0.3s;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9990;
+      opacity: 0.5;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.6rem 4rem;
+      mix-blend-mode: multiply;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+    }
+    .nav-actions { display:flex; align-items:center; gap:1rem; }
+    .nav-shop-btn {
+      text-decoration:none; color: var(--cream); background: var(--ink);
+      padding: 0.7rem 1.2rem; font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      transition: background 0.3s, color 0.3s;
+    }
+    .nav-shop-btn:hover { background: var(--gold); color: var(--ink); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      text-decoration: none; color: var(--ink);
+      position: relative; padding-bottom: 2px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 8rem 4rem 4rem 4rem;
+      position: relative; z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.6rem;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 5.5vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.02;
+      color: var(--ink);
+      opacity: 0; animation: fadeUp 0.9s 0.4s forwards;
+    }
+    .hero-title em {
+      font-style: italic; color: var(--rust);
+      display: block;
+    }
+
+    .hero-line {
+      width: 3rem; height: 2px; background: var(--gold);
+      margin: 2rem 0;
+      opacity: 0; animation: expandLine 0.8s 0.7s forwards;
+      transform-origin: left;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem; font-weight: 300;
+      color: var(--warm-gray);
+      line-height: 1.7; max-width: 360px;
+      opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
+    }
+
+    .hero-cta {
+      display: flex; gap: 1.2rem; align-items: center;
+      margin-top: 2.8rem;
+      opacity: 0; animation: fadeUp 0.9s 1s forwards;
+    }
+
+    .btn-primary {
+      background: var(--ink); color: var(--cream);
+      padding: 0.9rem 2.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: none; text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s, color 0.3s;
+      cursor: none;
+    }
+    .btn-primary:hover { background: var(--gold); color: var(--ink); }
+
+    .btn-ghost {
+      font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      text-decoration: none; color: var(--ink);
+      display: flex; align-items: center; gap: 0.5rem;
+      transition: color 0.3s; cursor: none;
+    }
+    .btn-ghost:hover { color: var(--gold); }
+    .btn-ghost span { font-size: 1.1rem; transition: transform 0.3s; }
+    .btn-ghost:hover span { transform: translateX(4px); }
+
+    /* Hero right — decorative */
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-img-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(26,18,9,0.30), rgba(26,18,9,0.45)), url('https://source.unsplash.com/1200x1400/?footwear,sneakers');
+      background-size: cover;
+      background-position: center;
+    }
+    .hero-img-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 40px,
+        rgba(200,151,58,0.06) 40px,
+        rgba(200,151,58,0.06) 41px
+      );
+    }
+    .hero-float-text {
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      font-size: 12rem; font-weight: 900; font-style: italic;
+      color: rgba(255,255,255,0.04);
+      white-space: nowrap;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      pointer-events: none;
+    }
+
+    /* floating cards */
+    .hero-card {
+      position: absolute;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(10px);
+      padding: 1.4rem 1.8rem;
+      border-left: 3px solid var(--gold);
+    }
+    .hero-card-1 { bottom: 20%; left: 8%; animation: float1 5s ease-in-out infinite; }
+    .hero-card-2 { top: 22%; right: 8%; animation: float2 6s ease-in-out infinite; }
+    .hero-card .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem; font-weight: 900; color: var(--ink);
+      line-height: 1;
+    }
+    .hero-card .label {
+      font-size: 0.72rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--warm-gray);
+      margin-top: 0.3rem;
+    }
+
+    @keyframes float1 {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes float2 {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes expandLine {
+      from { opacity: 0; transform: scaleX(0); }
+      to { opacity: 1; transform: scaleX(1); }
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-wrap {
+      background: var(--ink); padding: 1.2rem 0;
+      overflow: hidden; display: flex;
+    }
+    .marquee-track {
+      display: flex; gap: 0;
+      animation: marquee 22s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-track span {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-style: italic;
+      color: var(--cream); opacity: 0.5;
+      padding: 0 2.5rem;
+    }
+    .marquee-track .dot {
+      color: var(--gold); opacity: 1; font-style: normal; font-size: 1.2rem;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── SERVICES ─── */
+    .services {
+      padding: 8rem 4rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 900; line-height: 1.1;
+      max-width: 520px; margin-bottom: 4rem;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid rgba(26,18,9,0.1);
+    }
+    .service-item {
+      padding: 3rem 2.5rem;
+      border-right: 1px solid rgba(26,18,9,0.1);
+      position: relative; overflow: hidden;
+      transition: background 0.4s;
+    }
+    .service-item:last-child { border-right: none; }
+    .service-item::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 3px; background: var(--gold);
+      transition: width 0.5s ease;
+    }
+    .service-item:hover::before { width: 100%; }
+    .service-item:hover { background: rgba(200,151,58,0.04); }
+
+    .service-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.8rem; font-weight: 400;
+      color: var(--gold); margin-bottom: 1.5rem;
+    }
+    .service-icon {
+      font-size: 2rem; margin-bottom: 1.2rem;
+      display: block;
+    }
+    .service-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+    .service-desc {
+      font-size: 0.9rem; color: var(--warm-gray);
+      line-height: 1.7;
+    }
+
+    /* ─── ABOUT ─── */
+    .about {
+      background: var(--ink); color: var(--cream);
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 70vh;
+    }
+    .about-left {
+      padding: 6rem 4rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .about-left .section-label { color: var(--gold-light); }
+    .about-left .section-title { color: var(--cream); max-width: none; }
+    .about-text {
+      font-size: 1rem; font-weight: 300;
+      line-height: 1.8; color: rgba(245,240,232,0.65);
+      max-width: 440px; margin-bottom: 2.5rem;
+    }
+    .about-stats {
+      display: flex; gap: 3rem;
+      border-top: 1px solid rgba(245,240,232,0.15);
+      padding-top: 2rem; margin-top: 1rem;
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem; font-weight: 900;
+      color: var(--gold); line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: rgba(245,240,232,0.5);
+      margin-top: 0.4rem;
+    }
+
+    .about-right {
+      position: relative;
+      background: linear-gradient(160deg, #2c1f0e, #0d0905);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .about-right-inner {
+      position: relative; z-index: 2; text-align: center;
+    }
+    .big-italic {
+      font-family: 'Playfair Display', serif;
+      font-size: 8rem; font-style: italic;
+      font-weight: 900; color: rgba(200,151,58,0.12);
+      line-height: 1;
+    }
+    .about-quote {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 3rem;
+    }
+    .about-quote blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-style: italic;
+      color: var(--cream); line-height: 1.5;
+      text-align: center; max-width: 340px;
+    }
+    .about-quote cite {
+      display: block; margin-top: 1.2rem;
+      font-style: normal; font-size: 0.75rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ─── WORK ─── */
+    .work { padding: 8rem 4rem; max-width: 1200px; margin: 0 auto; }
+    .work-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 4rem;
+    }
+    .work-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1.5rem;
+    }
+    .work-item {
+      position: relative; overflow: hidden;
+      background: var(--ink);
+      aspect-ratio: 4/3;
+      cursor: none;
+    }
+    .work-item:first-child { grid-row: span 2; aspect-ratio: unset; }
+    .work-bg {
+      position: absolute; inset: 0;
+      transition: transform 0.6s ease;
+    }
+    .work-item:hover .work-bg { transform: scale(1.06); }
+    .work-bg-1 { background-image: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.42)), url('https://source.unsplash.com/1200x1200/?sneakers,footwear'); background-size: cover; background-position: center; }
+    .work-bg-2 { background-image: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.42)), url('https://source.unsplash.com/1000x1000/?boots,footwear'); background-size: cover; background-position: center; }
+    .work-bg-3 { background-image: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.42)), url('https://source.unsplash.com/1000x1000/?loafers,shoes'); background-size: cover; background-position: center; }
+    .work-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+      padding: 2rem;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+    }
+    .work-tag {
+      font-size: 0.68rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .work-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--cream);
+    }
+    .work-deco {
+      position: absolute; top: 2rem; right: 2rem;
+      width: 48px; height: 48px;
+      border: 1px solid rgba(200,151,58,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .work-deco::after {
+      content: '↗'; color: var(--gold); font-size: 1rem;
+    }
+    .work-item:hover .work-deco { opacity: 1; }
+
+    /* ─── PROCESS ─── */
+    .process {
+      background: #1a1209; color: var(--cream);
+      padding: 8rem 4rem;
+    }
+    .process-inner { max-width: 1200px; margin: 0 auto; }
+    .process-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; margin-top: 4rem;
+      border-top: 1px solid rgba(245,240,232,0.1);
+    }
+    .process-step {
+      padding: 3rem 2rem 3rem 0;
+      border-right: 1px solid rgba(245,240,232,0.1);
+      position: relative;
+    }
+    .process-step:last-child { border-right: none; padding-right: 0; }
+    .process-step::before {
+      content: attr(data-num);
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem; font-weight: 900;
+      color: rgba(200,151,58,0.12);
+      position: absolute; top: 2.5rem; right: 1.5rem;
+    }
+    .step-icon { font-size: 1.6rem; margin-bottom: 1.2rem; display: block; }
+    .step-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 0.8rem;
+    }
+    .step-desc {
+      font-size: 0.88rem; color: rgba(245,240,232,0.5);
+      line-height: 1.7;
+    }
+
+    /* ─── TESTIMONIAL ─── */
+    .testimonial {
+      padding: 8rem 4rem;
+      max-width: 900px; margin: 0 auto;
+      text-align: center;
+    }
+    .testimonial-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-style: italic; font-weight: 400;
+      line-height: 1.5; color: var(--ink);
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .testimonial-quote::before {
+      content: '"';
+      font-size: 8rem; color: rgba(200,151,58,0.12);
+      position: absolute; top: -3rem; left: -2rem;
+      font-style: normal; line-height: 1;
+    }
+    .testimonial-author {
+      display: flex; align-items: center;
+      justify-content: center; gap: 1.2rem;
+    }
+    .author-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--rust));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700; color: white;
+    }
+    .author-name {
+      font-weight: 600; font-size: 0.95rem;
+    }
+    .author-role {
+      font-size: 0.78rem; color: var(--warm-gray);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      background: var(--gold);
+      padding: 6rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: 'START';
+      font-family: 'Playfair Display', serif;
+      font-size: 18rem; font-weight: 900; font-style: italic;
+      color: rgba(26,18,9,0.06);
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap; pointer-events: none;
+    }
+    .cta-section .section-label { color: var(--ink); opacity: 0.6; }
+    .cta-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900; color: var(--ink);
+      margin: 1rem 0 2rem; line-height: 1.1;
+      position: relative;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: var(--ink); color: var(--cream);
+      padding: 1.1rem 3rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(26,18,9,0.3);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--ink); color: rgba(245,240,232,0.5);
+      padding: 4rem 4rem 2rem;
+    }
+    .footer-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 3rem;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 700; color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .footer-tagline {
+      font-size: 0.82rem; color: rgba(245,240,232,0.4);
+    }
+    .footer-nav { display: flex; gap: 4rem; }
+    .footer-nav-group h4 {
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .footer-nav-group ul { list-style: none; }
+    .footer-nav-group li { margin-bottom: 0.6rem; }
+    .footer-nav-group a {
+      text-decoration: none; color: rgba(245,240,232,0.5);
+      font-size: 0.88rem;
+      transition: color 0.3s;
+    }
+    .footer-nav-group a:hover { color: var(--gold); }
+    .footer-bottom {
+      border-top: 1px solid rgba(245,240,232,0.08);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { gap: 1.5rem; }
+      .nav-actions { gap: 0.75rem; }
+      .nav-shop-btn { padding: 0.65rem 1rem; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 7rem 2rem 4rem; }
+      .hero-right { height: 50vh; }
+      .services { padding: 5rem 2rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-item { border-right: none; border-bottom: 1px solid rgba(26,18,9,0.1); }
+      .about { grid-template-columns: 1fr; }
+      .about-right { min-height: 300px; }
+      .work { padding: 5rem 2rem; }
+      .work-grid { grid-template-columns: 1fr; }
+      .work-item:first-child { grid-row: span 1; aspect-ratio: 4/3; }
+      .process { padding: 5rem 2rem; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .process-step { padding: 2rem 1.5rem 2rem 0; margin-bottom: 1rem; }
+      .cta-section { padding: 5rem 2rem; }
+      footer { padding: 3rem 2rem 1.5rem; }
+      .footer-top { flex-direction: column; gap: 2rem; }
+      .footer-nav { gap: 2rem; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">SoleCraft</div>
+    <div class="nav-actions">
+    <ul class="nav-links">
+      <li><a href="#services">Collections</a></li>
+      <li><a href="#work">Featured</a></li>
+      <li><a href="#process">Why Us</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#work" class="nav-shop-btn">Shop Now</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Premium Footwear Collection · Est. 2019</p>
+      <h1 class="hero-title">
+        Step into <em>premium</em> footwear made to move.
+      </h1>
+      <div class="hero-line"></div>
+      <p class="hero-sub">
+        Discover sneakers, loafers, boots, and everyday essentials designed for comfort, style, and confident everyday wear.
+      </p>
+      <div class="hero-cta">
+        <a href="#work" class="btn-primary">Shop Collection</a>
+        <a href="#services" class="btn-ghost">Explore Styles <span>→</span></a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-img-bg"></div>
+      <div class="hero-float-text">Shoes</div>
+      <div class="hero-card hero-card-1">
+        <div class="num">250+</div>
+        <div class="label">Footwear Styles</div>
+      </div>
+      <div class="hero-card hero-card-2">
+        <div class="num">4.9★</div>
+        <div class="label">Customer Rating</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Sneakers</span><span class="dot">✦</span>
+      <span>Loafers</span><span class="dot">✦</span>
+      <span>Boots</span><span class="dot">✦</span>
+      <span>Running Shoes</span><span class="dot">✦</span>
+      <span>Casual Wear</span><span class="dot">✦</span>
+      <span>Everyday Comfort</span><span class="dot">✦</span>
+      <span>Premium Leather</span><span class="dot">✦</span>
+      <span>Sneakers</span><span class="dot">✦</span>
+      <span>Loafers</span><span class="dot">✦</span>
+      <span>Boots</span><span class="dot">✦</span>
+      <span>Running Shoes</span><span class="dot">✦</span>
+      <span>Casual Wear</span><span class="dot">✦</span>
+      <span>Everyday Comfort</span><span class="dot">✦</span>
+      <span>Premium Leather</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <p class="section-label">Our collections</p>
+    <h2 class="section-title">Footwear made for every step of your day</h2>
+    <div class="services-grid">
+      <div class="service-item">
+        <div class="service-num">01</div>
+        <span class="service-icon">👟</span>
+        <h3 class="service-name">Sneakers</h3>
+        <p class="service-desc">Modern silhouettes with lightweight comfort, made for daily wear, city walks, and effortless style.</p>
+      </div>
+      <div class="service-item">
+        <div class="service-num">02</div>
+        <span class="service-icon">🥾</span>
+        <h3 class="service-name">Boots</h3>
+        <p class="service-desc">Durable pairs with a bold finish, built for stronger grip, long wear, and standout everyday looks.</p>
+      </div>
+      <div class="service-item">
+        <div class="service-num">03</div>
+        <span class="service-icon">🥿</span>
+        <h3 class="service-name">Loafers & Casuals</h3>
+        <p class="service-desc">Clean, versatile footwear for workdays, outings, and smart-casual dressing without compromising comfort.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-left">
+      <p class="section-label">Our story</p>
+      <h2 class="section-title">Great footwear balances comfort, quality, and character.</h2>
+      <p class="about-text">
+        Founded in Mumbai, SoleCraft was built for people who want stylish footwear that feels as good as it looks. From everyday sneakers to premium loafers and durable boots, every pair is chosen to elevate your wardrobe and support your stride.
+      </p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">7+</div>
+          <div class="stat-label">Years Serving</div>
+        </div>
+        <div>
+          <div class="stat-num">1.2k+</div>
+          <div class="stat-label">Pairs Sold</div>
+        </div>
+        <div>
+          <div class="stat-num">40+</div>
+          <div class="stat-label">New Arrivals</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-right">
+      <div class="about-right-inner">
+        <div class="big-italic">Stride</div>
+      </div>
+      <div class="about-quote">
+        <blockquote>
+          "The right pair changes how you walk, how you feel, and how confidently you show up."
+        </blockquote>
+        <cite>— Arjun Mehta, Founder</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="work-header">
+      <div>
+        <p class="section-label">Featured styles</p>
+        <h2 class="section-title" style="margin-bottom:0">Trending footwear picks</h2>
+      </div>
+      <a href="#contact" class="btn-ghost" style="margin-bottom:0.5rem">Shop all styles <span>→</span></a>
+    </div>
+    <div class="work-grid">
+      <div class="work-item">
+        <div class="work-bg work-bg-1"></div>
+        <div class="work-overlay">
+          <div class="work-tag">Sneakers · New Arrival</div>
+          <div class="work-title">Urban Pulse — Lightweight Street Sneakers</div>
+        </div>
+        <div class="work-deco"></div>
+      </div>
+      <div class="work-item">
+        <div class="work-bg work-bg-2"></div>
+        <div class="work-overlay">
+          <div class="work-tag">Boots · Bestseller</div>
+          <div class="work-title">RidgeCraft — Rugged Everyday Boots</div>
+        </div>
+        <div class="work-deco"></div>
+      </div>
+      <div class="work-item">
+        <div class="work-bg work-bg-3"></div>
+        <div class="work-overlay">
+          <div class="work-tag">Loafers · Premium</div>
+          <div class="work-title">Monarch Ease — Refined Leather Loafers</div>
+        </div>
+        <div class="work-deco"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process" id="process">
+    <div class="process-inner">
+      <p class="section-label" style="color:var(--gold-light)">Why choose us</p>
+      <h2 class="section-title" style="color:var(--cream)">Footwear designed around real comfort and style</h2>
+      <div class="process-steps">
+        <div class="process-step" data-num="01">
+          <span class="step-icon">✓</span>
+          <h3 class="step-name">Comfort First</h3>
+          <p class="step-desc">Soft interiors, supportive soles, and easy fits that keep you comfortable from morning to night.</p>
+        </div>
+        <div class="process-step" data-num="02">
+          <span class="step-icon">★</span>
+          <h3 class="step-name">Premium Materials</h3>
+          <p class="step-desc">Quality finishes and durable construction chosen to make every pair feel long-lasting and polished.</p>
+        </div>
+        <div class="process-step" data-num="03">
+          <span class="step-icon">↺</span>
+          <h3 class="step-name">Versatile Styles</h3>
+          <p class="step-desc">From casual outfits to smarter looks, our footwear collection adapts to work, travel, and weekends.</p>
+        </div>
+        <div class="process-step" data-num="04">
+          <span class="step-icon">⚑</span>
+          <h3 class="step-name">Trusted Service</h3>
+          <p class="step-desc">Fast support, easy ordering, and a smooth shopping experience built around customer confidence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="testimonial">
+    <p class="testimonial-quote">
+      SoleCraft made it easy to find stylish footwear that actually feels comfortable all day. The quality, fit, and finish were better than expected.
+    </p>
+    <div class="testimonial-author">
+      <div class="author-avatar">P</div>
+      <div>
+        <div class="author-name">Riya Sharma</div>
+        <div class="author-role">Verified Customer</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact">
+    <p class="section-label">Shop with us</p>
+    <h2 class="cta-title">Ready to find your<br>next favorite pair?</h2>
+    <a href="mailto:hello@solecraft.store" class="cta-btn">Order Now</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">SoleCraft</div>
+        <div class="footer-tagline">Premium Footwear Store · Mumbai, India</div>
+      </div>
+      <div class="footer-nav">
+        <div class="footer-nav-group">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="#services">Sneakers</a></li>
+            <li><a href="#services">Boots</a></li>
+            <li><a href="#services">Loafers</a></li>
+          </ul>
+        </div>
+        <div class="footer-nav-group">
+          <h4>Collections</h4>
+          <ul>
+            <li><a href="#work">Featured Styles</a></li>
+            <li><a href="#process">Why Choose Us</a></li>
+            <li><a href="#contact">Order Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-nav-group">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SoleCraft Footwear. All rights reserved.</span>
+      <span>Walk with confidence ✦</span>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    });
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Hover effects
+    document.querySelectorAll('a, button, .work-item, .service-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(1.8)';
+        ring.style.width = '56px';
+        ring.style.height = '56px';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+      });
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.service-item, .process-step, .work-item, .stat-num').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
